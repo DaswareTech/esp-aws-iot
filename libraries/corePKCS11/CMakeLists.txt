@@ -43,3 +43,8 @@ idf_component_register(
     REQUIRES
         ${COREPKCS_REQUIRES}
 )
+
+set_source_files_properties(    "${CMAKE_CURRENT_LIST_DIR}/corePKCS11/source/portable/mbedtls/core_pkcs11_mbedtls.c"
+                                PROPERTIES COMPILE_FLAGS
+                                -Wno-unused-variable
+                            )

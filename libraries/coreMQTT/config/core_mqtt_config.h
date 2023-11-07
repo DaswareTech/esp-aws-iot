@@ -7,23 +7,19 @@
 #define REMOVE_PARENS( X ) STRIP_PARENS( EXTRACT_ARGS X )
 
 /* Logging configurations */
-#if CONFIG_CORE_MQTT_LOG_ERROR || CONFIG_CORE_MQTT_LOG_WARN || CONFIG_CORE_MQTT_LOG_INFO || CONFIG_CORE_MQTT_LOG_DEBUG
-
-    /* Set logging level for the coreMQTT and coreMQTT-Agent components to highest level,
-     * so any defined logging level below is printed. */
-    #ifdef LOG_LOCAL_LEVEL
-        #undef LOG_LOCAL_LEVEL
-    #endif
-    #define LOG_LOCAL_LEVEL ESP_LOG_VERBOSE
-    #include "esp_log.h"
-
-    /* Change LIBRARY_LOG_NAME to "coreMQTT" if defined somewhere else. */
-    #ifdef LIBRARY_LOG_NAME
-        #undef LIBRARY_LOG_NAME
-    #endif
-    #define LIBRARY_LOG_NAME "coreMQTT"
-
+/* Set logging level for the coreMQTT and coreMQTT-Agent components to highest level,
+    * so any defined logging level below is printed. */
+#ifdef LOG_LOCAL_LEVEL
+    #undef LOG_LOCAL_LEVEL
 #endif
+#define LOG_LOCAL_LEVEL ESP_LOG_VERBOSE
+#include "esp_log.h"
+
+/* Change LIBRARY_LOG_NAME to "coreMQTT" if defined somewhere else. */
+#ifdef LIBRARY_LOG_NAME
+    #undef LIBRARY_LOG_NAME
+#endif
+#define LIBRARY_LOG_NAME "coreMQTT"
 
 /* Undefine logging macros if they were defined somewhere else like another AWS/FreeRTOS library. */
 #ifdef LogError
@@ -43,21 +39,10 @@
 #endif
 
 /* Define logging macros based on configurations in sdkconfig.h. */
-#if CONFIG_CORE_MQTT_LOG_ERROR
-    #define LogError( message, ... ) ESP_LOGE( LIBRARY_LOG_NAME, REMOVE_PARENS( message ), ##__VA_ARGS__ )
-#endif
-
-#if CONFIG_CORE_MQTT_LOG_WARN
-    #define LogWarn( message, ... ) ESP_LOGW( LIBRARY_LOG_NAME, REMOVE_PARENS( message ), ##__VA_ARGS__ )
-#endif
-
-#if CONFIG_CORE_MQTT_LOG_INFO
-    #define LogInfo( message, ... ) ESP_LOGI( LIBRARY_LOG_NAME, REMOVE_PARENS( message ), ##__VA_ARGS__ )
-#endif
-
-#if CONFIG_CORE_MQTT_LOG_DEBUG
-    #define LogDebug( message, ... ) ESP_LOGD( LIBRARY_LOG_NAME, REMOVE_PARENS( message ), ##__VA_ARGS__ )
-#endif
+#define LogError( message, ... ) ESP_LOGE( LIBRARY_LOG_NAME, REMOVE_PARENS( message ), ##__VA_ARGS__ )
+#define LogWarn( message, ... ) ESP_LOGW( LIBRARY_LOG_NAME, REMOVE_PARENS( message ), ##__VA_ARGS__ )
+#define LogInfo( message, ... ) ESP_LOGI( LIBRARY_LOG_NAME, REMOVE_PARENS( message ), ##__VA_ARGS__ )
+#define LogDebug( message, ... ) ESP_LOGD( LIBRARY_LOG_NAME, REMOVE_PARENS( message ), ##__VA_ARGS__ )
 
 /* coreMQTT configurations */
 #define MQTT_STATE_ARRAY_MAX_COUNT CONFIG_MQTT_STATE_ARRAY_MAX_COUNT

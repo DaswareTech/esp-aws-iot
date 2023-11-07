@@ -93,27 +93,7 @@ menu "coreMQTT"
         
             If a dummy implementation of the MQTTGetCurrentTimeFunc_t timer function,
             is supplied to the library, then MQTT_SEND_RETRY_TIMEOUT_MS MUST be set to 0.
-
-    menu "Logging"
-
-        config CORE_MQTT_LOG_ERROR
-            bool "Enable Error Logging"
-            default n
-        
-        config CORE_MQTT_LOG_WARN
-            bool "Enable Warning Logging"
-            default n
-
-        config CORE_MQTT_LOG_INFO
-            bool "Enable Info Logging"
-            default y
-
-        config CORE_MQTT_LOG_DEBUG
-            bool "Enable Debug Logging"
-            default n
-
-    endmenu # coreMQTT Logging
-
+    
     config CORE_MQTT_USE_SECURE_ELEMENT
     bool
     depends on ESP_TLS_USE_SECURE_ELEMENT

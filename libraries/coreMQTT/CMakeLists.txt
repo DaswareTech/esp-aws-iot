@@ -23,7 +23,7 @@ set(COREMQTT_SRCS
 )
 
 set(COREMQTT_REQUIRES
-    esp-tls
+    esp_tls_lwgsm
 )
 
 idf_component_register(

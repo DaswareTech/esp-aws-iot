@@ -62,24 +62,4 @@ menu "AWS OTA"
         default 1 if OTA_DATA_OVER_MQTT_PRIMARY
         default 2 if OTA_DATA_OVER_HTTP_PRIMARY
 
-    menu "Logging"
-
-        config AWS_OTA_LOG_ERROR
-            bool "Enable Error Logging"
-            default y
-        
-        config AWS_OTA_LOG_WARN
-            bool "Enable Warning Logging"
-            default y
-
-        config AWS_OTA_LOG_INFO
-            bool "Enable Info Logging"
-            default y
-
-        config AWS_OTA_LOG_DEBUG
-            bool "Enable Debug Logging"
-            default n
-
-    endmenu # AWS OTA Logging
-
 endmenu # AWS OTA

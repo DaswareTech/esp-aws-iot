@@ -15,7 +15,7 @@
 	url = https://github.com/aws/Device-Defender-for-AWS-IoT-embedded-sdk.git
 [submodule "libraries/ota-for-aws-iot-embedded-sdk/ota-for-aws-iot-embedded-sdk"]
 	path = libraries/ota-for-aws-iot-embedded-sdk/ota-for-aws-iot-embedded-sdk
-	url = https://github.com/aws/ota-for-aws-iot-embedded-sdk.git
+	url = https://github.com/DaswareTech/ota-for-aws-iot-embedded-sdk.git
 [submodule "libraries/coreJSON/coreJSON"]
 	path = libraries/coreJSON/coreJSON
 	url = https://github.com/FreeRTOS/coreJSON.git

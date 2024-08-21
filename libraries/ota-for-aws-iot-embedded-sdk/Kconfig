@@ -1,5 +1,16 @@
 menu "AWS OTA"
 
+    config MAX_BLOCK_BITMAP_SIZE
+        int "The maximum size of the block bitmap in bytes."
+        default 128
+        range 128 256
+        help
+            This configuration parameter sets the maximum size of the block bitmap in bytes. The block bitmap
+            is used to track the status of each block in the file. The size of the block bitmap is calculated
+            as the number of blocks in the file divided by 8. The maximum size of the block bitmap is calculated
+            as the maximum number of blocks in the file divided by 8. For example, if the maximum number of blocks
+            in the file is 1024, then the maximum size of the block bitmap is 128 bytes.
+            
     config LOG2_FILE_BLOCK_SIZE
         int "Log base 2 of the size of the file data block message (excluding the header). 10 bits yields a data block size of 1KB."
         default 12

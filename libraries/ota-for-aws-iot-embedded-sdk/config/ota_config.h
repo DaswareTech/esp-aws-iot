@@ -74,6 +74,11 @@
 /************ End of logging configuration ****************/
 
 /**
+ * @brief maximum size of the block bitmap in bytes
+ */
+#define otaconfigMAX_BLOCK_BITMAP_SIZE          CONFIG_MAX_BLOCK_BITMAP_SIZE
+
+/**
  * @brief Log base 2 of the size of the file data block message (excluding the header).
  *
  * 10 bits yields a data block size of 1KB.

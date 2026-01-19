@@ -4,6 +4,12 @@
 #include "esp_tls.h"
 #include "network_transport.h"
 #include "sdkconfig.h"
+#include <sys/socket.h>
+
+/* Short receive timeout for responsive send/receive interleaving (in ms) */
+#define SOCKET_RECV_TIMEOUT_MS  100
+
+static const char *TAG = "NET_TRANSPORT";
 
 TlsTransportStatus_t xTlsConnect( NetworkContext_t* pxNetworkContext )
 {
@@ -26,7 +32,7 @@ TlsTransportStatus_t xTlsConnect( NetworkContext_t* pxNetworkContext )
         .clientkey_buf = ( const unsigned char* )( pxNetworkContext->pcClientKeyPem ),
         .clientkey_bytes = strlen( pxNetworkContext->pcClientKeyPem ) + 1,
 #endif
-        .timeout_ms = 10000,
+        .timeout_ms = 10000,  /* Long timeout for TLS handshake */
     };
 
     esp_tls_t* pxTls = esp_tls_init();
@@ -34,9 +40,9 @@ TlsTransportStatus_t xTlsConnect( NetworkContext_t* pxNetworkContext )
     xSemaphoreTake(pxNetworkContext->xTlsContextSemaphore, portMAX_DELAY);
     pxNetworkContext->pxTls = pxTls;
 
-    if (esp_tls_conn_new_sync( pxNetworkContext->pcHostname, 
-            strlen( pxNetworkContext->pcHostname ), 
-            pxNetworkContext->xPort, 
+    if (esp_tls_conn_new_sync( pxNetworkContext->pcHostname,
+            strlen( pxNetworkContext->pcHostname ),
+            pxNetworkContext->xPort,
             &xEspTlsConfig, pxTls) <= 0)
     {
         if (pxNetworkContext->pxTls)
@@ -45,6 +51,21 @@ TlsTransportStatus_t xTlsConnect( NetworkContext_t* pxNetworkContext )
             pxNetworkContext->pxTls = NULL;
         }
         xRet = TLS_TRANSPORT_CONNECT_FAILURE;
+    }
+    else
+    {
+        /* Connection successful - set shorter recv timeout for responsive operation */
+        int sockfd = -1;
+        if (esp_tls_get_conn_sockfd(pxTls, &sockfd) == ESP_OK && sockfd >= 0)
+        {
+            struct timeval tv;
+            tv.tv_sec = SOCKET_RECV_TIMEOUT_MS / 1000;
+            tv.tv_usec = (SOCKET_RECV_TIMEOUT_MS % 1000) * 1000;
+            if (setsockopt(sockfd, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv)) != 0)
+            {
+                ESP_LOGW(TAG, "Failed to set SO_RCVTIMEO");
+            }
+        }
     }
 
     xSemaphoreGive(pxNetworkContext->xTlsContextSemaphore);

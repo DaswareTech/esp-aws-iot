@@ -5,12 +5,6 @@
 #include "network_transport.h"
 #include "sdkconfig.h"
 
-#if CONFIG_ESP_TLS_USING_LWGSM
-#include "esp_lwgsm.h"
-#else
-#include <sys/socket.h>
-#endif
-
 /* Short receive timeout for responsive send/receive interleaving (in ms) */
 #define SOCKET_RECV_TIMEOUT_MS  100
 
@@ -60,25 +54,9 @@ TlsTransportStatus_t xTlsConnect( NetworkContext_t* pxNetworkContext )
     else
     {
         /* Connection successful - set shorter recv timeout for responsive operation */
-        int sockfd = -1;
-        if (esp_tls_get_conn_sockfd(pxTls, &sockfd) == ESP_OK && sockfd >= 0)
+        if (esp_tls_set_recv_timeout(pxTls, SOCKET_RECV_TIMEOUT_MS) != ESP_OK)
         {
-#if CONFIG_ESP_TLS_USING_LWGSM
-            /* LWGSM uses virtual connection IDs, not real sockets - use lwgsm timeout API */
-            if (esp_lwgsm_set_recv_timeout(sockfd, SOCKET_RECV_TIMEOUT_MS) != 0)
-            {
-                ESP_LOGW(TAG, "Failed to set LWGSM recv timeout");
-            }
-#else
-            /* LWIP uses real BSD sockets - use setsockopt */
-            struct timeval tv;
-            tv.tv_sec = SOCKET_RECV_TIMEOUT_MS / 1000;
-            tv.tv_usec = (SOCKET_RECV_TIMEOUT_MS % 1000) * 1000;
-            if (setsockopt(sockfd, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv)) != 0)
-            {
-                ESP_LOGW(TAG, "Failed to set SO_RCVTIMEO");
-            }
-#endif
+            ESP_LOGW(TAG, "Failed to set recv timeout");
         }
     }
 

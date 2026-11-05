@@ -29,6 +29,7 @@
 
 #include "iot_crypto.h"
 #include "core_pkcs11.h"
+#include "sdkconfig.h"
 #include "esp_system.h"
 #include "esp_log.h"
 #include "soc/rtc_cntl_reg.h"
@@ -93,7 +94,7 @@ static CK_RV prvGetCertificate( const char * pcLabelName,
                                 uint8_t ** ppucData,
                                 uint32_t * pulDataSize );
 
-static OtaPalMainStatus_t asn1_to_raw_ecdsa( uint8_t * signature,
+static OtaPalMainStatus_t __attribute__( ( unused ) ) asn1_to_raw_ecdsa( uint8_t * signature, /* unused on Secure Boot V2 builds */
                                              uint16_t sig_len,
                                              uint8_t * out_signature )
 {
@@ -501,6 +502,13 @@ OtaPalStatus_t otaPal_CloseFile( OtaFileContext_t * const pFileContext )
         }
         else
         {
+#if CONFIG_SECURE_BOOT_V2_ENABLED
+            /* Secure Boot V2: the image already carries its own (RSA) signature block, which the bootloader
+             * checks. The ECDSA trailer below is a Secure Boot V1 artefact, and on flash-encrypted units its
+             * 68-byte write is refused (esp_ota_write_with_offset needs 16-byte multiples), which would fail
+             * every OTA at close. Skip it. */
+            ota_ctx.valid_image = true;
+#else
             /* Write ASN1 decoded signature at the end of firmware image for bootloader to validate during bootup */
             esp_sec_boot_sig_t * sec_boot_sig = ( esp_sec_boot_sig_t * ) malloc( sizeof( esp_sec_boot_sig_t ) );
 
@@ -529,6 +537,7 @@ OtaPalStatus_t otaPal_CloseFile( OtaFileContext_t * const pFileContext )
             {
                 mainErr = OtaPalFileClose;
             }
+#endif /* CONFIG_SECURE_BOOT_V2_ENABLED */
         }
     }
 

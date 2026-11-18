@@ -1,5 +1,5 @@
-#ifndef ESP_TLS_TRANSPORT_H
-#define ESP_TLS_TRANSPORT_H
+#ifndef NETWORK_TRANSPORT_H
+#define NETWORK_TRANSPORT_H
 
 #include "freertos/FreeRTOS.h"
 #include "freertos/semphr.h"
@@ -58,4 +58,4 @@ int32_t espTlsTransportSend( NetworkContext_t* pxNetworkContext,
 int32_t espTlsTransportRecv( NetworkContext_t* pxNetworkContext,
     void* pvData, size_t uxDataLen );
 
-#endif /* ESP_TLS_TRANSPORT_H */
+#endif /* NETWORK_TRANSPORT_H */

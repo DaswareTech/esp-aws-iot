@@ -2,11 +2,14 @@
 #include "freertos/semphr.h"
 #include "esp_log.h"
 #include "esp_tls.h"
+#include "esp_tls_transport.h"
+#include "lwip/sockets.h"
 #include "network_transport.h"
 #include "sdkconfig.h"
 
-/* Short receive timeout for responsive send/receive interleaving (in ms) */
-#define SOCKET_RECV_TIMEOUT_MS  100
+/* How long one receive waits for data. The MQTT receive loop holds the MQTT mutex for that long, and a publish
+ * waits for it: at 100 ms every command response waited ~50 ms on average before it could be sent. */
+#define SOCKET_RECV_TIMEOUT_MS  20
 
 static const char *TAG = "NET_TRANSPORT";
 
@@ -57,6 +60,16 @@ TlsTransportStatus_t xTlsConnect( NetworkContext_t* pxNetworkContext )
         if (esp_tls_set_recv_timeout(pxTls, SOCKET_RECV_TIMEOUT_MS) != ESP_OK)
         {
             ESP_LOGW(TAG, "Failed to set recv timeout");
+        }
+        /* coreMQTT writes a PUBLISH as header then payload; with Nagle the payload waited for the header's ACK.
+         * GSM runs TCP in the modem, without a socket. */
+        int sockfd = -1;
+        int nodelay = 1;
+        if (esp_tls_get_active_transport() == ESP_TLS_TRANSPORT_WIFI &&
+            (esp_tls_get_conn_sockfd(pxTls, &sockfd) != ESP_OK ||
+             setsockopt(sockfd, IPPROTO_TCP, TCP_NODELAY, &nodelay, sizeof(nodelay)) != 0))
+        {
+            ESP_LOGW(TAG, "Failed to set TCP_NODELAY");
         }
     }
 
